@@ -1,6 +1,8 @@
-# novyra-os
-
-A highly opinionated Arch-based distro.
+<div align="center">
+    <h1> 〈 novyra 〉 </h1>
+    <h3>A highly opinionated Arch-based distro.
+</h3>
+</div>
 
 ## Releases
 
