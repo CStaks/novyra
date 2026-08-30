@@ -1,4 +1,7 @@
-# novyra-os
+<div align="center">
+    <h1> 〈 novyra dotfiles 〉 </h1>
+    <h3></h3>
+</div>
 
 A highly opinionated Arch-based distro.
 
