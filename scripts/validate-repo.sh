@@ -14,4 +14,4 @@ for file in "${required[@]}"; do
 done
 bash -n scripts/build-iso.sh scripts/install-novyra.sh scripts/build-package-repo.sh
 bash -n iso/profiledef.sh iso/airootfs/usr/local/bin/novyra-install iso/airootfs/usr/local/share/novyra/install-novyra.sh
-printf 'Novyra repository validation passed.\n'
+printf 'novyra repository validation passed.\n'

@@ -2,7 +2,7 @@
 
 ## Project
 
-Novyra OS is an Arch-based Linux distribution. The repository contains the ArchISO profile, live filesystem configuration, installer, package repository tooling, and GitHub Actions distribution workflows.
+novyra is an Arch-based Linux distribution. The repository contains the ArchISO profile, live filesystem configuration, installer, package repository tooling, and GitHub Actions distribution workflows.
 
 ## Important paths
 
@@ -61,6 +61,7 @@ bash -n iso/airootfs/usr/local/share/novyra/setup-apps.sh
 ## extra info
 
 - novyra is always spelt with a lowercase n
+
 A full ISO build requires Arch Linux with `archiso`; a full package repository build requires Arch `repo-add`. Those cannot be substituted with generic Node tooling.
 
 ## Agent handoff

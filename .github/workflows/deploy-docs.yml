@@ -1,4 +1,4 @@
-name: Deploy Novyra site
+name: Deploy novyra site
 
 on:
   push:

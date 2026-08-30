@@ -1,4 +1,4 @@
-name: Build Novyra ISO
+name: Build novyra ISO
 
 on:
   schedule:
@@ -122,7 +122,7 @@ jobs:
           VERSION: ${{ needs.prepare.outputs.version }}
         run: |
           {
-            echo "# Novyra $CHANNEL $VERSION"
+            echo "# novyra $CHANNEL $VERSION"
             echo
             echo "SourceForge downloads:"
             echo
@@ -135,7 +135,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.prepare.outputs.version }}
-          name: Novyra ${{ needs.prepare.outputs.channel }} ${{ needs.prepare.outputs.version }}
+          name: novyra ${{ needs.prepare.outputs.channel }} ${{ needs.prepare.outputs.version }}
           prerelease: ${{ needs.prepare.outputs.channel == 'nightly' }}
           make_latest: ${{ needs.prepare.outputs.channel == 'stable' }}
           body_path: release-body.md

@@ -52,7 +52,7 @@ editor no
 LOADER
 root_uuid=$(blkid -s UUID -o value "$root")
 cat > "$mount_dir/boot/loader/entries/novyra.conf" <<ENTRY
- title Novyra
+ title novyra
  linux /vmlinuz-linux
  initrd /initramfs-linux.img
  options root=UUID=$root_uuid rw

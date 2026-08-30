@@ -2,8 +2,8 @@
 
 iso_name="novyra"
 iso_label="NOVYRA_$(date +%Y%m)"
-iso_publisher="Novyra"
-iso_application="Novyra live environment"
+iso_publisher="novyra"
+iso_application="novyra live environment"
 iso_version="$(date +%Y.%m.%d)"
 install_dir="novyra"
 bootmodes=('bios.syslinux' 'uefi-x64.systemd-boot')
