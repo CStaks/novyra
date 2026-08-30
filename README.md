@@ -56,6 +56,34 @@ There are currently no package recipes in this repository; adding package files 
 bash scripts/validate-repo.sh
 ```
 
+## Branding
+
+### Dark Theme (Default)
+
+| Color | Hex | RGB | Usage |
+| :--- | :--- | :--- | :--- |
+| **Background** | `#1C1C1C` | `rgb(28, 28, 28)` | Main application/body background |
+| **Surface** | `#2A2A2A` | `rgb(42, 42, 42)` | Cards, modals, dropdowns, and elevated elements |
+| **Primary Text** | `#FFFFFF` | `rgb(255, 255, 255)` | Headings and primary body text |
+| **Secondary Text** | `#A1A1AA` | `rgb(161, 161, 170)` | Subtitles, placeholders, and muted text |
+| **Borders** | `#3F3F46` | `rgb(63, 63, 70)` | Dividers, borders, and subtle line-work |
+
+### Light Theme
+
+| Color | Hex | RGB | Usage |
+| :--- | :--- | :--- | :--- |
+| **Background** | `#FFFFFF` | `rgb(255, 255, 255)` | Main application/body background |
+| **Surface** | `#F4F4F5` | `rgb(244, 244, 245)` | Cards, modals, dropdowns, and elevated elements |
+| **Primary Text** | `#1C1C1C` | `rgb(28, 28, 28)` | Headings and primary body text |
+| **Secondary Text** | `#52525B` | `rgb(82, 82, 91)` | Subtitles, placeholders, and muted text |
+| **Borders** | `#E4E4E7` | `rgb(228, 228, 231)` | Dividers, borders, and subtle line-work |
+
+---
+
+### Implementation Guidelines
+* **Contrast:** Always ensure adequate contrast ratios. 
+* **Flexibility:** When applying styles, try to use CSS variables instead of hardcoding colors
+
 ## License
 
 [Apache 2.0](LICENSE)
