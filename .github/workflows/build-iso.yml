@@ -24,9 +24,9 @@ jobs:
           pacman-key --init
           pacman-key --populate archlinux
 
-      - name: Install Archiso toolset
+      - name: Install Archiso toolset and Git
         run: |
-          pacman -Syu --noconfirm archiso libisoburn squashfs-tools grub
+          pacman -Syu --noconfirm archiso libisoburn squashfs-tools grub git
 
       - name: Create output, workspace, and missing configuration directories
         run: |
