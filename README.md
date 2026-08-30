@@ -1,10 +1,6 @@
-note to the developer: for any website that you may create for this project, perferably keep the theme of https://cstaks.github.io/ and make sure to use /docs/.
+# novyra-os
 
-discord webhook workflow: follow the steps in order to make the discord webhook functional
-
-# Project Name
-
-Short description of what this does.
+A highly opinionated Arch-based distro
 
 ## 🚀 Getting Started
 Steps to run locally or set up the project.
