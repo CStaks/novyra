@@ -1,0 +1,28 @@
+name: Discord Notification
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Discord Notification
+        uses: Zmicier14/discord-webhook@v1.0.6
+        with:
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+          severity: info
+          text: "🚀 New push to ${{ github.repository }}"
+          description: >-
+            Push detected on `${{ github.ref_name }}` by `${{ github.actor }}`.
+          details: >-
+            Commit: [`${{ github.sha }}`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})
+
+            Message: `${{ github.event.head_commit.message }}`
+
+            Compare: ${{ github.event.compare }}
+
+            Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          footer: "event=push • workflow=${{ github.workflow }}"
