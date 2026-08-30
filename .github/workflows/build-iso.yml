@@ -17,6 +17,10 @@ jobs:
       - name: Checkout repository code
         uses: actions/checkout@v4
 
+      - name: Purge existing Working Directory and Output Directory
+        run: |
+          rm -rf work/ out/
+
       - name: Install Archiso toolset and dependencies
         run: |
           pacman -Syu --noconfirm archiso libisoburn squashfs-tools grub git rsync
