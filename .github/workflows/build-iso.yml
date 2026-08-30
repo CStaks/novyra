@@ -1,4 +1,4 @@
-name: Build ISO
+name: Build ISOs (x86_64 & ARM64)
 
 on:
   push:
@@ -6,12 +6,28 @@ on:
   workflow_dispatch: # Allows manual trigger from the GitHub Actions tab
 
 jobs:
-  build-x86_64-iso:
-    runs-on: ubuntu-latest
+  build-iso:
+    name: Build ${{ matrix.arch }} ISO
+    runs-on: ${{ matrix.runner }}
 
-    # Crucial: Must run inside an Arch container with host privileges
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-latest
+            container: archlinux:latest
+            profile_dir: ./src/novyra-x86_64
+            pkg_filename: packages.x86_64
+          - arch: arm64
+            runner: ubuntu-24.04-arm64
+            container: agners/archlinuxarm:latest
+            profile_dir: ./src/novyra-arm64
+            pkg_filename: packages.aarch64
+
+    # Crucial: Runs inside the native architecture Arch container with host privileges
     container:
-      image: archlinux:latest
+      image: ${{ matrix.container }}
       options: --privileged
 
     steps:
@@ -20,27 +36,27 @@ jobs:
 
       - name: Initialize and update Arch keyring
         run: |
-          pacman -Sy --noconfirm archlinux-keyring
+          pacman -Sy --noconfirm archlinux-keyring || true
           pacman-key --init
-          pacman-key --populate archlinux
+          pacman-key --populate archlinux || pacman-key --populate archlinuxarm
 
-      - name: Install Archiso toolset and Git
+      - name: Install Archiso toolset and dependencies
         run: |
-          pacman -Syu --noconfirm archiso libisoburn squashfs-tools grub git
+          pacman -Syu --noconfirm archiso libisoburn squashfs-tools grub git rsync
 
-      - name: Create output, workspace, and missing configuration directories
+      - name: Create output and workspace directories
         run: |
           mkdir -p work/
           mkdir -p out/
-          # Ensure your profile directories exist
-          mkdir -p ./src/novyra/syslinux
-          mkdir -p ./src/novyra/grub
+          mkdir -p ${{ matrix.profile_dir }}/airootfs/etc/skel
 
-      - name: Inject default bootloader configurations
+      - name: Inject bootloader templates (x86_64 only)
+        if: matrix.arch == 'x86_64'
         run: |
-          # Copy the missing templates from the official package into your profile
-          cp -r /usr/share/archiso/configs/releng/syslinux/* ./src/novyra/syslinux/
-          cp -r /usr/share/archiso/configs/releng/grub/* ./src/novyra/grub/
+          mkdir -p ${{ matrix.profile_dir }}/syslinux
+          mkdir -p ${{ matrix.profile_dir }}/grub
+          cp -r /usr/share/archiso/configs/releng/syslinux/* ${{ matrix.profile_dir }}/syslinux/
+          cp -r /usr/share/archiso/configs/releng/grub/* ${{ matrix.profile_dir }}/grub/
 
       - name: Checkout dotfiles repository
         uses: actions/checkout@v4
@@ -51,7 +67,7 @@ jobs:
 
       - name: Deploy Dotfiles to /etc/skel
         run: |
-          SKEL="$(pwd)/src/novyra/airootfs/etc/skel"
+          SKEL="$(pwd)/${{ matrix.profile_dir }}/airootfs/etc/skel"
           mkdir -p "$SKEL/.config" "$SKEL/.local"
 
           if [ -d "temp-dotfiles/dots/.config" ]; then
@@ -61,16 +77,22 @@ jobs:
             cp -r temp-dotfiles/dots/.local/* "$SKEL/.local/"
           fi
 
+          # Also copy to root so live desktop environment loads dotfiles if booting as root
+          ROOT_HOME="$(pwd)/${{ matrix.profile_dir }}/airootfs/root"
+          mkdir -p "$ROOT_HOME/.config" "$ROOT_HOME/.local"
+          cp -r "$SKEL/.config/"* "$ROOT_HOME/.config/" 2>/dev/null || true
+          cp -r "$SKEL/.local/"* "$ROOT_HOME/.local/" 2>/dev/null || true
+
           rm -rf temp-dotfiles
 
       - name: Build ISO using mkarchiso
         run: |
-          mkarchiso -v -w work/ -o out/ ./src/novyra
+          mkarchiso -v -w work/ -o out/ ${{ matrix.profile_dir }}
 
       - name: Upload finished ISO artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Custom-Arch-Live-ISO
+          name: Arch-Live-ISO-${{ matrix.arch }}
           path: out/*.iso
           if-no-files-found: error
           retention-days: 7
