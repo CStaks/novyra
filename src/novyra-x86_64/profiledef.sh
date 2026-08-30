@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2034
 
-iso_name="archlinux-x86_64-hyprland"
-iso_label="ARCH_X86_$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y%m)"
-iso_publisher="Arch Linux <https://archlinux.org>"
-iso_application="Arch Linux x86_64 Hyprland Live"
-iso_version="$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y.%m.%d)"
+iso_name="novyra-linux"
+iso_label="NOVYRA_$(date +%Y%m)"
+iso_publisher="Novyra <https://github.com/cstacks/novyra>"
+iso_application="Novyra Linux Live/Rescue CD"
+iso_version="$(date +%Y.%m.%d)"
 install_dir="arch"
 buildmodes=('iso')
 bootmodes=('bios.syslinux'
