@@ -88,13 +88,13 @@ jobs:
               pacman-key --init && \
               pacman-key --populate archlinuxarm && \
               
-              # 2. Update repos and install required packages
-              pacman -Syu --noconfirm git rsync grub squashfs-tools libisoburn make && \
+              # 2. Install dependencies including python-docutils for rst2man
+              pacman -Syu --noconfirm git rsync grub squashfs-tools libisoburn make python-docutils && \
 
-              # 3. Check for archiso; if missing, build program binaries only from git (skips man page generation)
+              # 3. Check for archiso; if missing, build and install from git
               if ! pacman -S --noconfirm archiso; then
                 git clone https://gitlab.archlinux.org/archlinux/archiso.git /tmp/archiso && \
-                make -C /tmp/archiso install-program && \
+                make -C /tmp/archiso install && \
                 rm -rf /tmp/archiso
               fi && \
               
