@@ -23,9 +23,9 @@ jobs:
 
       - name: Inject x86 bootloader templates
         run: |
-          mkdir -p ./src/novyra-x86_64/syslinux ./src/novyra-x86_64/grub
-          cp -r /usr/share/archiso/configs/releng/syslinux/* ./src/novyra-x86_64/syslinux/
-          cp -r /usr/share/archiso/configs/releng/grub/* ./src/novyra-x86_64/grub/
+          mkdir -p "./src/novyra-x86+64/syslinux" "./src/novyra-x86+64/grub"
+          cp -r /usr/share/archiso/configs/releng/syslinux/* "./src/novyra-x86+64/syslinux/"
+          cp -r /usr/share/archiso/configs/releng/grub/* "./src/novyra-x86+64/grub/"
 
       - name: Checkout dotfiles repository
         uses: actions/checkout@v4
@@ -36,7 +36,7 @@ jobs:
 
       - name: Deploy Dotfiles to /etc/skel
         run: |
-          SKEL="$(pwd)/src/novyra-x86_64/airootfs/etc/skel"
+          SKEL="$(pwd)/src/novyra-x86+64/airootfs/etc/skel"
           mkdir -p "$SKEL/.config" "$SKEL/.local"
           if [ -d "temp-dotfiles/dots/.config" ]; then
             cp -r temp-dotfiles/dots/.config/* "$SKEL/.config/"
@@ -48,7 +48,7 @@ jobs:
 
       - name: Build x86_64 ISO
         run: |
-          mkarchiso -v -w work/ -o out/ ./src/novyra-x86_64
+          mkarchiso -v -w work/ -o out/ "./src/novyra-x86+64"
 
       - name: Upload finished x86_64 ISO artifact
         uses: actions/upload-artifact@v4
@@ -73,7 +73,7 @@ jobs:
             --platform linux/arm64 \
             -v $(pwd):/workspace \
             -w /workspace \
-            agners/archlinuxarm:latest \
+            archlinux:latest \
             bash -c "
               pacman -Syu --noconfirm archiso git rsync grub squashfs-tools libisoburn && \
               
