@@ -91,10 +91,10 @@ jobs:
               # 2. Update repos and install required packages
               pacman -Syu --noconfirm git rsync grub squashfs-tools libisoburn make && \
 
-              # 3. Check for archiso; if missing, build and install from git
+              # 3. Check for archiso; if missing, build program binaries only from git (skips man page generation)
               if ! pacman -S --noconfirm archiso; then
                 git clone https://gitlab.archlinux.org/archlinux/archiso.git /tmp/archiso && \
-                make -C /tmp/archiso install && \
+                make -C /tmp/archiso install-program && \
                 rm -rf /tmp/archiso
               fi && \
               
