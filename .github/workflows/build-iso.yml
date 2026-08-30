@@ -1,14 +1,14 @@
-name: Build Arch Linux ISO
+name: Build ISO
 
 on:
   push:
-    branches: [ main, iso-building-tests]
+    branches: [main, iso-building-tests]
   workflow_dispatch: # Allows manual trigger from the GitHub Actions tab
 
 jobs:
-  build:
+  build-x86_64-iso:
     runs-on: ubuntu-latest
-    
+
     # Crucial: Must run inside an Arch container with host privileges
     container:
       image: archlinux:latest
@@ -53,3 +53,24 @@ jobs:
           path: out/*.iso
           if-no-files-found: error
           retention-days: 7
+
+  build-arm64-iso:
+    runs-on: ubuntu-24.04-arm64
+    container:
+      image: agners/archlinuxarm:latest
+      options: --privileged
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Initialize Keyring & Tools
+        run: |
+          pacman -Sy --noconfirm archlinuxarm-keyring
+          pacman-key --init
+          pacman-key --populate archlinuxarm
+          pacman -Syu --noconfirm archiso libisoburn squashfs-tools grub
+
+      - name: Build ARM64 ISO
+        run: |
+          mkdir -p work/ out/
+          mkarchiso -v -w work/ -o out/ ./src/novyra
