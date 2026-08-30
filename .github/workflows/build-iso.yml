@@ -42,25 +42,26 @@ jobs:
           cp -r /usr/share/archiso/configs/releng/syslinux/* ./src/novyra/syslinux/
           cp -r /usr/share/archiso/configs/releng/grub/* ./src/novyra/grub/
 
-      - name: Deploy Dotfiles using dots/ mappings
+      - name: Checkout dotfiles repository
+        uses: actions/checkout@v4
+        with:
+          repository: 'end-4/dots-hyprland'
+          submodules: 'recursive'
+          path: 'temp-dotfiles'
+
+      - name: Deploy Dotfiles to /etc/skel
         run: |
           SKEL="$(pwd)/src/novyra/airootfs/etc/skel"
-          mkdir -p "$SKEL/.config" "$SKEL/.local/share"
+          mkdir -p "$SKEL/.config" "$SKEL/.local"
 
-          git clone --recursive https://github.com/end-4/novyra-dots.git /tmp/dotfiles
-          
-          if [ -d "/tmp/dotfiles/dots/.config" ]; then
-            cp -r /tmp/dotfiles/dots/.config/* "$SKEL/.config/"
+          if [ -d "temp-dotfiles/dots/.config" ]; then
+            cp -r temp-dotfiles/dots/.config/* "$SKEL/.config/"
+          fi
+          if [ -d "temp-dotfiles/dots/.local" ]; then
+            cp -r temp-dotfiles/dots/.local/* "$SKEL/.local/"
           fi
 
-          if [ -d "/tmp/dotfiles/dots/.local" ]; then
-            cp -r /tmp/dotfiles/dots/.local/* "$SKEL/.local/"
-          fi
-
-          mkdir -p "$SKEL/.config/hypr/hyprland"
-          echo 'env = ILLOGICAL_IMPULSE_VIRTUAL_ENV,~/.local/state/quickshell/.venv' >> "$SKEL/.config/hypr/hyprland/env.conf"
-
-          rm -rf /tmp/dotfiles
+          rm -rf temp-dotfiles
 
       - name: Build ISO using mkarchiso
         run: |
