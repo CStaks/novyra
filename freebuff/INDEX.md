@@ -21,6 +21,8 @@ Novyra OS is an Arch-based Linux distribution. The repository contains the ArchI
 | `config/arch-versions.env` | Documented stable Arch image pin |
 | `.github/workflows/build-iso.yml` | Nightly/stable ISO build, SourceForge upload, GitHub release links |
 | `.github/workflows/publish-repo.yml` | Signed pacman repository publication |
+| `.github/workflows/coderabbit.yml` | Automated CodeRabbit pull request reviews |
+| `.coderabbit.yaml` | CodeRabbit repository-specific review guidance |
 
 ## Release model
 
@@ -41,6 +43,7 @@ The ISO includes Hyprland, greetd, tuigreet, Ghostty, lazygit, Neovim, Flatpak, 
 - Do not commit, push, reset, clean, or rewrite history unless explicitly requested.
 - Prefer editing existing files and use Freebuff file tools for source changes.
 - Do not hand-edit generated files.
+- Pull requests are reviewed by CodeRabbit using `.coderabbit.yaml`; workflow changes must preserve least-privilege permissions and avoid exposing secrets.
 
 ## Validation
 
