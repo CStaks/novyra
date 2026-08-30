@@ -53,24 +53,3 @@ jobs:
           path: out/*.iso
           if-no-files-found: error
           retention-days: 7
-
-  build-arm64-iso:
-    runs-on: ubuntu-24.04-arm64
-    container:
-      image: agners/archlinuxarm:latest
-      options: --privileged
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Initialize Keyring & Tools
-        run: |
-          pacman -Sy --noconfirm archlinuxarm-keyring
-          pacman-key --init
-          pacman-key --populate archlinuxarm
-          pacman -Syu --noconfirm archiso libisoburn squashfs-tools grub
-
-      - name: Build ARM64 ISO
-        run: |
-          mkdir -p work/ out/
-          mkarchiso -v -w work/ -o out/ ./src/novyra
