@@ -83,15 +83,15 @@ jobs:
             -w /workspace \
             agners/archlinuxarm:latest \
             bash -c "
-              # 1. Install awk first so pacman-key stops throwing errors
-              pacman -Sy --noconfirm gawk archlinuxarm-keyring || true && \
+              # 1. Install gawk and base build essentials
+              pacman -Sy --noconfirm gawk base-devel archlinuxarm-keyring || true && \
               pacman-key --init && \
               pacman-key --populate archlinuxarm && \
               
-              # 2. Update repos and install required build toolset
-              pacman -Syu --noconfirm gawk git rsync grub squashfs-tools libisoburn && \
+              # 2. Update repos and install required packages
+              pacman -Syu --noconfirm git rsync grub squashfs-tools libisoburn make && \
 
-              # 3. Check for archiso; if missing from ARM repos, install via git
+              # 3. Check for archiso; if missing, build and install from git
               if ! pacman -S --noconfirm archiso; then
                 git clone https://gitlab.archlinux.org/archlinux/archiso.git /tmp/archiso && \
                 make -C /tmp/archiso install && \
