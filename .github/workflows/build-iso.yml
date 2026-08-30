@@ -28,14 +28,23 @@ jobs:
         run: |
           pacman -Syu --noconfirm archiso libisoburn squashfs-tools grub
 
-      - name: Create output and workspace directories
+      - name: Create output, workspace, and missing configuration directories
         run: |
           mkdir -p work/
           mkdir -p out/
+          # Ensure your profile directories exist
+          mkdir -p ./src/novyra/syslinux
+          mkdir -p ./src/novyra/grub
+
+      - name: Inject default bootloader configurations
+        run: |
+          # Copy the missing templates from the official package into your profile
+          cp -r /usr/share/archiso/configs/releng/syslinux/* ./src/novyra/syslinux/
+          cp -r /usr/share/archiso/configs/releng/grub/* ./src/novyra/grub/
 
       - name: Build ISO using mkarchiso
         run: |
-          mkarchiso -v -w work/ -o out/ ./src/novyra/
+          mkarchiso -v -w work/ -o out/ ./src/novyra
 
       - name: Upload finished ISO artifact
         uses: actions/upload-artifact@v4
