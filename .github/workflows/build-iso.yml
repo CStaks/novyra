@@ -83,11 +83,22 @@ jobs:
             -w /workspace \
             agners/archlinuxarm:latest \
             bash -c "
-              pacman -Sy --noconfirm archlinuxarm-keyring && \
+              # 1. Install awk first so pacman-key stops throwing errors
+              pacman -Sy --noconfirm gawk archlinuxarm-keyring || true && \
               pacman-key --init && \
               pacman-key --populate archlinuxarm && \
-              pacman -Syu --noconfirm archiso git rsync grub squashfs-tools libisoburn && \
               
+              # 2. Update repos and install required build toolset
+              pacman -Syu --noconfirm gawk git rsync grub squashfs-tools libisoburn && \
+
+              # 3. Check for archiso; if missing from ARM repos, install via git
+              if ! pacman -S --noconfirm archiso; then
+                git clone https://gitlab.archlinux.org/archlinux/archiso.git /tmp/archiso && \
+                make -C /tmp/archiso install && \
+                rm -rf /tmp/archiso
+              fi && \
+              
+              # 4. Deploy dotfiles into skel
               SKEL=\"/workspace/src/novyra-arm64/airootfs/etc/skel\" && \
               mkdir -p \"\$SKEL/.config\" && \
               git clone --recursive https://github.com/end-4/dots-hyprland.git /tmp/dotfiles && \
@@ -96,6 +107,7 @@ jobs:
               fi && \
               rm -rf /tmp/dotfiles && \
 
+              # 5. Build ISO
               mkarchiso -v -w work/ -o out/ ./src/novyra-arm64
             "
 
