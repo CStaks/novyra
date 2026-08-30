@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Installation · Novyra Wiki</title>
-<meta name="description" content="Build or obtain the Novyra ArchISO image, boot it, and install from the live environment.">
+<title>Installation · novyra Wiki</title>
+<meta name="description" content="Download or build the novyra ISO, boot it, and install novyra to your disk with the built-in installer.">
 <link rel="stylesheet" href="../wiki.css">
 <link rel="icon" href="../primary-dark-logo.ico" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="../primary-light-logo.ico" media="(prefers-color-scheme: light)">
@@ -16,9 +16,9 @@
 <body>
 <header class="wiki-topbar">
   <div class="wiki-topbar-inner">
-    <a class="wiki-brand" href="index.html">Novyra<span style="color:var(--bg-color)"> · Wiki</span></a>
+    <a class="wiki-brand" href="index.html">novyra<span class="wiki-brand-dot"> · Wiki</span></a>
     <div class="wiki-actions">
-      <a class="wiki-back" href="https://CStaks.github.io/novyra/">← Back to Novyra</a>
+      <a class="wiki-back" href="https://CStaks.github.io/novyra/">← Back to novyra</a>
       <button class="wiki-theme-toggle" type="button" aria-label="Switch to light theme">☼</button>
     </div>
   </div>
@@ -32,63 +32,64 @@
 </ul>
   </nav>
   <main class="wiki-content">
-<p class="wiki-description" style="color:var(--muted)">Build or obtain the Novyra ArchISO image, boot it, and install from the live environment.</p><h1>Installation</h1>
-<p>Novyra currently ships as an ArchISO profile. The repository contains the live image profile, but it does not yet include a graphical or automated disk installer. Treat this as a live environment and use the standard Arch installation workflow from the terminal.</p>
-<h2>Requirements</h2>
+<h1 id="installation">Installation</h1>
+<p>novyra ships as a bootable Arch-based ISO. Boot it, connect to the network, and run the built-in installer from the live desktop or a terminal. The installer is a straightforward terminal flow — no manual partitioning required.</p>
+<h2 id="requirements">Requirements</h2>
 <ul>
 <li>A 64-bit x86_64 machine or virtual machine</li>
-<li>At least 2 GiB RAM and 20 GiB of storage recommended</li>
-<li>A USB drive, if installing on physical hardware</li>
-<li>A backup of important data — installation can erase the target disk</li>
+<li>At least 4 GiB RAM and 20 GiB of storage recommended</li>
+<li>A USB drive (4 GiB or larger) if installing on physical hardware</li>
+<li>A backup of important data — <strong>installation erases the target disk</strong></li>
 </ul>
-<h2>Get the image</h2>
-<p>Download a published ISO from the <a href="https://github.com/CStaks/novyra">Novyra repository</a>. If no release image is available yet, build one from the repository instead.</p>
-<h2>Build the ISO from source</h2>
-<p>Builds are performed with <code>mkarchiso</code> inside an Arch Linux environment. The included GitHub Actions workflow uses a privileged <code>archlinux:latest</code> container.</p>
-<pre><code class="language-sh">pacman -Sy --noconfirm archlinux-keyring
-pacman-key --init
-pacman-key --populate archlinux
-pacman -Syu --noconfirm archiso libisoburn squashfs-tools grub
-mkdir -p work out
-mkarchiso -v -w work/ -o out/ ./src/novyra/
-</code></pre>
-<p>The resulting ISO is written to <code>out/</code>. The profile supports BIOS via Syslinux and UEFI via GRUB.</p>
-<h2>Write the ISO to a USB</h2>
+<h2 id="download-the-iso">Download the ISO</h2>
+<p>novyra ISOs are published on SourceForge and linked from GitHub Releases:</p>
+<ul>
+<li><strong>Nightly</strong>: built daily from the latest Arch base, versioned by short commit hash.</li>
+<li><strong>Stable</strong>: built only when a <code>vMAJOR.MINOR.PATCH</code> tag is pushed, using a pinned Arch image.</li>
+</ul>
+<p>Both channels ship a standard variant and an NVIDIA variant (with NVIDIA drivers and kernel modules preconfigured).</p>
+<p>Grab the latest links from the <a href="https://github.com/CStaks/novyra/releases">GitHub Releases page</a> or the project page at <a href="https://sourceforge.net/p/novyra/">sourceforge.net/p/novyra</a>.</p>
+<h2 id="write-the-iso-to-a-usb">Write the ISO to a USB</h2>
 <p>Replace <code>/dev/sdX</code> with the whole USB device, not a partition. This erases the USB drive.</p>
-<pre><code class="language-sh">dd if=out/*.iso of=/dev/sdX bs=4M status=progress conv=fsync
-</code></pre>
+<pre><code class="language-sh">dd if=novyra-*.iso of=/dev/sdX bs=4M status=progress conv=fsync</code></pre>
 <p>On a virtual machine, attach the ISO directly instead of writing it to USB.</p>
-<h2>Boot the live environment</h2>
+<h2 id="boot-the-live-environment">Boot the live environment</h2>
 <ol>
-<li>Boot the target machine from the Novyra USB or ISO.</li>
-<li>Choose the default boot entry.</li>
-<li>Confirm that networking works.</li>
-<li>Identify the target disk with <code>lsblk</code>.</li>
+<li>Boot the target machine from the USB stick (UEFI mode is required by the installer).</li>
+<li>The live session starts through greetd → tuigreet → Hyprland.</li>
+<li>Connect to the network — wired works out of the box, Wi-Fi via NetworkManager.</li>
 </ol>
-<p>The current profile includes the base system, Linux kernel, OpenSSH, QEMU guest agent, VirtualBox guest utilities, Hyper-V support, and VMware tools. It does not currently define a desktop session or installer configuration in the repository.</p>
-<h2>Install to disk</h2>
-<p>Use the standard Arch Linux installation process from the live shell:</p>
+<h2 id="install-to-disk">Install to disk</h2>
+<p>Open a terminal (Ghostty) and run:</p>
+<pre><code class="language-sh">sudo novyra-install</code></pre>
+<p>The installer will:</p>
 <ol>
-<li>Set the correct keyboard layout with <code>loadkeys</code> if needed.</li>
-<li>Verify network access and synchronize the clock.</li>
-<li>Partition and format the target disk.</li>
-<li>Mount the target filesystem under <code>/mnt</code>.</li>
-<li>Install the base system and kernel with <code>pacstrap</code>.</li>
-<li>Generate <code>/etc/fstab</code> with <code>genfstab</code>.</li>
-<li>Enter the new system with <code>arch-chroot</code>.</li>
-<li>Configure timezone, locale, hostname, users, networking, and a bootloader.</li>
-<li>Enable any required guest-agent or SSH services.</li>
-<li>Exit, unmount <code>/mnt</code>, reboot, and remove the installation media.</li>
+<li>Show your disks with <code>lsblk</code> and ask for the target disk.</li>
+<li>Ask you to type <code>ERASE</code> to confirm — this wipes the selected disk.</li>
+<li>Create a GPT layout with a 1 GiB EFI partition and an ext4 root partition.</li>
+<li>Install the base system, Hyprland, greetd, tuigreet, Ghostty, Flatpak, and networking.</li>
+<li>Configure the CachyOS repositories (optimized builds) and the novyra pacman repository.</li>
+<li>Install systemd-boot and enable the first-boot service.</li>
 </ol>
-<p>Consult the <a href="https://wiki.archlinux.org/title/Installation_guide">Arch Linux Installation Guide</a> for the authoritative commands and hardware-specific details.</p>
-<h2>After installation</h2>
-<p>Update the installed system and configure your preferred desktop or window manager. Hyprland and CachyOS repository integration are planned product direction, but they are not present in the current ISO profile files yet.</p>
+<h2 id="first-boot">First boot</h2>
+<p>After the first reboot, the one-time <code>novyra-first-boot</code> service runs once networking is available. It installs the remaining apps — paru, VS Code, Zed, Brave, LazyVim, and Warehouse — and adds Flathub. You can rerun it any time with:</p>
+<pre><code class="language-sh">sudo novyra-setup-apps</code></pre>
+<h2 id="keeping-novyra-updated">Keeping novyra updated</h2>
+<p>Once installed, updates come straight from the novyra repository:</p>
+<pre><code class="language-sh">sudo pacman -Syu</code></pre>
+<p>The <code>[novyra]</code> repository is configured in the installed system, alongside the official Arch and CachyOS repositories.</p>
+<h2 id="building-the-iso-from-source">Building the ISO from source</h2>
+<p>If you&#x27;d rather build the ISO yourself, you need an Arch Linux environment with <code>archiso</code>:</p>
+<pre><code class="language-sh">sudo pacman -Syu archiso
+RELEASE_CHANNEL=nightly RELEASE_VERSION=$(git rev-parse --short=7 HEAD) \
+  scripts/build-iso.sh standard out</code></pre>
+<p>Use <code>nvidia</code> instead of <code>standard</code> for the NVIDIA variant.</p>
   </main>
 </div>
 <footer class="wiki-footer">
   <div class="wiki-footer-inner">
-    <span>Novyra OS documentation.</span>
-    <span><a href="https://CStaks.github.io/novyra/">Novyra OS</a></span>
+    <span>novyra OS documentation.</span>
+    <span><a href="https://CStaks.github.io/novyra/">novyra OS</a></span>
   </div>
 </footer>
 <script>

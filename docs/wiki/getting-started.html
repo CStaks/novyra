@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Getting started · Novyra Wiki</title>
-<meta name="description" content="The first things to do after installing Novyra.">
+<title>Getting started · novyra Wiki</title>
+<meta name="description" content="The first things to do after installing novyra.">
 <link rel="stylesheet" href="../wiki.css">
 <link rel="icon" href="../primary-dark-logo.ico" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="../primary-light-logo.ico" media="(prefers-color-scheme: light)">
@@ -16,9 +16,9 @@
 <body>
 <header class="wiki-topbar">
   <div class="wiki-topbar-inner">
-    <a class="wiki-brand" href="index.html">Novyra<span style="color:var(--bg-color)"> · Wiki</span></a>
+    <a class="wiki-brand" href="index.html">novyra<span class="wiki-brand-dot"> · Wiki</span></a>
     <div class="wiki-actions">
-      <a class="wiki-back" href="https://CStaks.github.io/novyra/">← Back to Novyra</a>
+      <a class="wiki-back" href="https://CStaks.github.io/novyra/">← Back to novyra</a>
       <button class="wiki-theme-toggle" type="button" aria-label="Switch to light theme">☼</button>
     </div>
   </div>
@@ -32,21 +32,42 @@
 </ul>
   </nav>
   <main class="wiki-content">
-<p class="wiki-description" style="color:var(--muted)">The first things to do after installing Novyra.</p><h1>Getting started</h1>
-<p>Novyra is an Arch-based desktop built around Hyprland, with thoughtful defaults and CachyOS repositories for faster apps.</p>
-<h2>First steps</h2>
+<h1 id="getting-started">Getting started</h1>
+<p>novyra is an opinionated Arch-based desktop built around Hyprland, with thoughtful defaults and CachyOS repositories for faster apps. This page covers what&#x27;s on the system and how to use it.</p>
+<h2 id="whats-preinstalled">What&#x27;s preinstalled</h2>
 <ul>
-<li>Explore the configured keyboard shortcuts.</li>
-<li>Update your packages.</li>
-<li>Read the installation guide for a fresh setup.</li>
+<li><strong>Hyprland</strong> — the Wayland compositor and desktop</li>
+<li><strong>greetd + tuigreet</strong> — the login screen</li>
+<li><strong>Ghostty</strong> — the default terminal</li>
+<li><strong>lazygit</strong> and <strong>Neovim (LazyVim)</strong> — terminal git and editing</li>
+<li><strong>Flatpak</strong> — with Flathub added on first boot</li>
+<li><strong>NetworkManager</strong> — networking and the nm-applet</li>
 </ul>
-<p>More guides will be added as Novyra grows.</p>
+<p>After first boot you&#x27;ll also have paru, VS Code, Zed, Brave, Warehouse, and LazyVim configured.</p>
+<h2 id="first-steps">First steps</h2>
+<ol>
+<li>Update everything: <code>sudo pacman -Syu</code></li>
+<li>Open a terminal with <code>SUPER+RETURN</code></li>
+<li>Browse Flathub with Warehouse to add more apps</li>
+<li>Use <code>paru</code> to install anything else from the AUR</li>
+</ol>
+<h2 id="key-bindings">Key bindings</h2>
+<table>
+<thead><tr><th>Shortcut</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><code>SUPER+RETURN</code></td><td>Open a terminal</td></tr>
+<tr><td><code>SUPER+Q</code></td><td>Close the focused window</td></tr>
+<tr><td><code>SUPER+M</code></td><td>Exit Hyprland</td></tr>
+</tbody></table>
+<h2 id="staying-up-to-date">Staying up to date</h2>
+<p>novyra updates come from the <code>[novyra]</code> pacman repository, hosted on SourceForge and configured out of the box. Run <code>sudo pacman -Syu</code> and you&#x27;re current — no extra steps needed.</p>
+<p>More guides will be added as novyra grows.</p>
   </main>
 </div>
 <footer class="wiki-footer">
   <div class="wiki-footer-inner">
-    <span>Novyra OS documentation.</span>
-    <span><a href="https://CStaks.github.io/novyra/">Novyra OS</a></span>
+    <span>novyra OS documentation.</span>
+    <span><a href="https://CStaks.github.io/novyra/">novyra OS</a></span>
   </div>
 </footer>
 <script>

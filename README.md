@@ -48,7 +48,7 @@ Server = https://sourceforge.net/projects/novyra/files/repo/$arch
 
 Place built `.pkg.tar.zst` packages in `packages/`. The repository workflow imports the signing key, generates `novyra.db`/`novyra.files`, exports `novyra.gpg`, and uploads them to SourceForge. Users must import `novyra.gpg` into pacman before using `SigLevel = Required`.
 
-There are currently no package recipes in this repository; adding package files or a package-builder workflow is required before Novyra packages can be delivered through `pacman -Syu`.
+There are currently no package recipes in this repository; adding package files or a package-builder workflow is required before novyra packages can be delivered through `pacman -Syu`.
 
 ## Validation
 

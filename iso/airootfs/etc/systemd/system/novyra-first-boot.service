@@ -1,5 +1,5 @@
 [Unit]
-Description=Novyra first-boot application setup
+Description=novyra first-boot application setup
 Wants=network-online.target
 After=network-online.target
 ConditionPathExists=!/var/lib/novyra/first-boot-complete
