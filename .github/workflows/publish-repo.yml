@@ -1,4 +1,4 @@
-name: Publish Novyra pacman repository
+name: Publish novyra pacman repository
 
 on:
   push:

@@ -61,6 +61,7 @@ bash -n iso/airootfs/usr/local/share/novyra/setup-apps.sh
 ## extra info
 
 - novyra is always spelt with a lowercase n
+
 A full ISO build requires Arch Linux with `archiso`; a full package repository build requires Arch `repo-add`. Those cannot be substituted with generic Node tooling.
 
 ## Agent handoff
