@@ -64,11 +64,12 @@ jobs:
       - name: Checkout repository code
         uses: actions/checkout@v4
 
-      - name: Set up QEMU Binfmt for multi-arch support
+      # Register static QEMU user binaries into binfmt_misc
+      - name: Register QEMU static emulators
         run: |
-          docker run --privileged --rm tonistiigi/binfmt --install all
+          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
-      - name: Build ARM64 ISO via Docker
+      - name: Build ARM64 ISO via Arch Linux ARM Docker
         run: |
           docker run --privileged --rm \
             -v $(pwd):/workspace \
