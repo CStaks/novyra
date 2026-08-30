@@ -2,6 +2,8 @@
 
 A highly opinionated Arch-based distro
 
+Pronounced no-vEE-rah
+
 ## 🚀 Getting Started
 Steps to run locally or set up the project.
 
@@ -25,6 +27,5 @@ This requirement exists to ensure proper credit is given to the original authors
 
 
 ## 📄 License
-MIT 
-CStaks uses the MIT license by default.
+[Apache 2.0](LICENSE)
 
