@@ -58,6 +58,8 @@ bash scripts/validate-repo.sh
 
 ## Branding
 
+novyra is always spelt with a lowercase n
+
 ### Dark Theme (Default)
 
 | Color | Hex | RGB | Usage |
