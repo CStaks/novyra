@@ -1,46 +1,141 @@
-name: Build Arch Linux ISO
+name: Build Novyra ISO
 
 on:
+  schedule:
+    - cron: "17 3 * * *"
   push:
-    branches: [ main ]
-  workflow_dispatch: # Allows manual trigger from the GitHub Actions tab
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "Release channel"
+        required: true
+        type: choice
+        default: nightly
+        options: [nightly, stable]
+      version:
+        description: "Stable vMAJOR.MINOR.PATCH version; leave blank for tag or nightly hash"
+        required: false
+        type: string
+
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  contents: write
+
+env:
+  SOURCEFORGE_PROJECT: novyra
+  SOURCEFORGE_USER: ${{ secrets.SOURCEFORGE_USER }}
+  SOURCEFORGE_HOST: frs.sourceforge.net
 
 jobs:
-  build:
+  prepare:
     runs-on: ubuntu-latest
-    
-    # Crucial: Must run inside an Arch container with host privileges
-    container:
-      image: archlinux:latest
-      options: --privileged
-
+    outputs:
+      channel: ${{ steps.vars.outputs.channel }}
+      version: ${{ steps.vars.outputs.version }}
+      image: ${{ steps.vars.outputs.image }}
     steps:
-      - name: Checkout repository code
-        uses: actions/checkout@v4
-
-      - name: Initialize and update Arch keyring
+      - uses: actions/checkout@v4
+      - id: vars
+        env:
+          INPUT_CHANNEL: ${{ inputs.channel }}
+          INPUT_VERSION: ${{ inputs.version }}
+          STABLE_ARCH_IMAGE: ${{ vars.STABLE_ARCH_IMAGE }}
         run: |
-          pacman -Sy --noconfirm archlinux-keyring
-          pacman-key --init
-          pacman-key --populate archlinux
+          channel="$INPUT_CHANNEL"
+          [[ -n "$channel" ]] || { [[ "$GITHUB_REF_TYPE" == tag ]] && channel=stable || channel=nightly; }
+          if [[ "$channel" == stable ]]; then
+            version="$INPUT_VERSION"
+            [[ -n "$version" ]] || version="$GITHUB_REF_NAME"
+            [[ "$version" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Stable builds require a vMAJOR.MINOR.PATCH tag or version input" >&2; exit 1; }
+            image="${STABLE_ARCH_IMAGE:-archlinux:latest}"
+          else
+            version="$(git rev-parse --short=7 HEAD)"
+            image=archlinux:latest
+          fi
+          {
+            echo "channel=$channel"
+            echo "version=$version"
+            echo "image=$image"
+          } >> "$GITHUB_OUTPUT"
 
-      - name: Install Archiso toolset
-        run: |
-          pacman -Syu --noconfirm archiso libisoburn squashfs-tools grub
-
-      - name: Create output and workspace directories
-        run: |
-          mkdir -p work/
-          mkdir -p out/
-
-      - name: Build ISO using mkarchiso
-        run: |
-          mkarchiso -v -w work/ -o out/ ./src/novyra/
-
-      - name: Upload finished ISO artifact
-        uses: actions/upload-artifact@v4
+  build:
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [standard, nvidia]
+    container:
+      image: ${{ needs.prepare.outputs.image }}
+      options: --privileged
+    steps:
+      - name: Install dependencies
+        run: pacman -Syu --noconfirm archiso git openssh rsync
+      - uses: actions/checkout@v4
+      - name: Validate repository
+        run: bash scripts/validate-repo.sh
+      - name: Build ISO
+        env:
+          RELEASE_CHANNEL: ${{ needs.prepare.outputs.channel }}
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
+        run: scripts/build-iso.sh "${{ matrix.variant }}" "$GITHUB_WORKSPACE/out"
+      - uses: actions/upload-artifact@v4
         with:
-          name: Custom-Arch-Live-ISO
+          name: iso-${{ matrix.variant }}
           path: out/*.iso
           if-no-files-found: error
-          retention-days: 7
+      - name: Configure SSH
+        env:
+          SOURCEFORGE_SSH_PRIVATE_KEY: ${{ secrets.SOURCEFORGE_SSH_PRIVATE_KEY }}
+        run: |
+          test -n "$SOURCEFORGE_USER" && test -n "$SOURCEFORGE_SSH_PRIVATE_KEY"
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$SOURCEFORGE_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$SOURCEFORGE_HOST" >> ~/.ssh/known_hosts
+      - name: Upload to SourceForge
+        env:
+          CHANNEL: ${{ needs.prepare.outputs.channel }}
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          remote="/home/frs/project/$SOURCEFORGE_PROJECT/$CHANNEL/$VERSION"
+          ssh "$SOURCEFORGE_USER@$SOURCEFORGE_HOST" "mkdir -p '$remote'"
+          rsync -av --checksum out/*.iso "$SOURCEFORGE_USER@$SOURCEFORGE_HOST:$remote/"
+
+  release:
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: iso-*
+          path: isos
+          merge-multiple: true
+      - name: Create link-only release body
+        env:
+          CHANNEL: ${{ needs.prepare.outputs.channel }}
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          {
+            echo "# Novyra $CHANNEL $VERSION"
+            echo
+            echo "SourceForge downloads:"
+            echo
+            for iso in isos/*.iso; do
+              name=$(basename "$iso")
+              echo "- [$name](https://sourceforge.net/projects/$SOURCEFORGE_PROJECT/files/$CHANNEL/$VERSION/$name/download)"
+            done
+          } > release-body.md
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.prepare.outputs.version }}
+          name: Novyra ${{ needs.prepare.outputs.channel }} ${{ needs.prepare.outputs.version }}
+          prerelease: ${{ needs.prepare.outputs.channel == 'nightly' }}
+          make_latest: ${{ needs.prepare.outputs.channel == 'stable' }}
+          body_path: release-body.md

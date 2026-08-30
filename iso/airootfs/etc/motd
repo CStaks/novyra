@@ -1,0 +1,6 @@
+Welcome to Novyra.
+
+Start the installer with:
+  sudo novyra-install
+
+The live desktop starts through greetd and tuigreet.
