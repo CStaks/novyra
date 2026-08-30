@@ -70,7 +70,7 @@ jobs:
       - name: Build ARM64 ISO via Docker + QEMU
         run: |
           docker run --privileged --rm \
-            --platform linuxarm64 \
+            --platform linux/arm64 \
             -v $(pwd):/workspace \
             -w /workspace \
             agners/archlinuxarm:latest \
