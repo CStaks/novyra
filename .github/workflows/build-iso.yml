@@ -1,0 +1,46 @@
+name: Build Arch Linux ISO
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: # Allows manual trigger from the GitHub Actions tab
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    # Crucial: Must run inside an Arch container with host privileges
+    container:
+      image: archlinux:latest
+      options: --privileged
+
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Initialize and update Arch keyring
+        run: |
+          pacman -Sy --noconfirm archlinux-keyring
+          pacman-key --init
+          pacman-key --populate archlinux
+
+      - name: Install Archiso toolset
+        run: |
+          pacman -Syu --noconfirm archiso libisoburn squashfs-tools
+
+      - name: Create output and workspace directories
+        run: |
+          mkdir -p work/
+          mkdir -p out/
+
+      - name: Build ISO using mkarchiso
+        run: |
+          mkarchiso -v -w work/ -o out/ ./src/novyra/
+
+      - name: Upload finished ISO artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Custom-Arch-Live-ISO
+          path: out/*.iso
+          if-no-files-found: error
+          retention-days: 7
