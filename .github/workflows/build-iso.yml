@@ -3,60 +3,29 @@ name: Build ISOs (x86_64 & ARM64)
 on:
   push:
     branches: [main, iso-building-tests]
-  workflow_dispatch: # Allows manual trigger from the GitHub Actions tab
+  workflow_dispatch:
 
 jobs:
-  build-iso:
-    name: Build ${{ matrix.arch }} ISO
-    runs-on: ${{ matrix.runner }}
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - arch: x86_64
-            runner: ubuntu-latest
-            container: archlinux:latest
-            profile_dir: ./src/novyra-x86_64
-            pkg_filename: packages.x86_64
-          - arch: arm64
-            runner: ubuntu-24.04-arm64
-            container: agners/archlinuxarm:latest
-            profile_dir: ./src/novyra-arm64
-            pkg_filename: packages.aarch64
-
-    # Crucial: Runs inside the native architecture Arch container with host privileges
+  build-x86_64:
+    name: Build x86_64 ISO
+    runs-on: ubuntu-latest
     container:
-      image: ${{ matrix.container }}
+      image: archlinux:latest
       options: --privileged
 
     steps:
       - name: Checkout repository code
         uses: actions/checkout@v4
 
-      - name: Initialize and update Arch keyring
-        run: |
-          pacman -Sy --noconfirm archlinux-keyring || true
-          pacman-key --init
-          pacman-key --populate archlinux || pacman-key --populate archlinuxarm
-
       - name: Install Archiso toolset and dependencies
         run: |
           pacman -Syu --noconfirm archiso libisoburn squashfs-tools grub git rsync
 
-      - name: Create output and workspace directories
+      - name: Inject x86 bootloader templates
         run: |
-          mkdir -p work/
-          mkdir -p out/
-          mkdir -p ${{ matrix.profile_dir }}/airootfs/etc/skel
-
-      - name: Inject bootloader templates (x86_64 only)
-        if: matrix.arch == 'x86_64'
-        run: |
-          mkdir -p ${{ matrix.profile_dir }}/syslinux
-          mkdir -p ${{ matrix.profile_dir }}/grub
-          cp -r /usr/share/archiso/configs/releng/syslinux/* ${{ matrix.profile_dir }}/syslinux/
-          cp -r /usr/share/archiso/configs/releng/grub/* ${{ matrix.profile_dir }}/grub/
+          mkdir -p ./src/x86_64/syslinux ./src/x86_64/grub
+          cp -r /usr/share/archiso/configs/releng/syslinux/* ./src/x86_64/syslinux/
+          cp -r /usr/share/archiso/configs/releng/grub/* ./src/x86_64/grub/
 
       - name: Checkout dotfiles repository
         uses: actions/checkout@v4
@@ -67,32 +36,60 @@ jobs:
 
       - name: Deploy Dotfiles to /etc/skel
         run: |
-          SKEL="$(pwd)/${{ matrix.profile_dir }}/airootfs/etc/skel"
+          SKEL="$(pwd)/src/x86_64/airootfs/etc/skel"
           mkdir -p "$SKEL/.config" "$SKEL/.local"
-
           if [ -d "temp-dotfiles/dots/.config" ]; then
             cp -r temp-dotfiles/dots/.config/* "$SKEL/.config/"
           fi
           if [ -d "temp-dotfiles/dots/.local" ]; then
             cp -r temp-dotfiles/dots/.local/* "$SKEL/.local/"
           fi
-
-          # Also copy to root so live desktop environment loads dotfiles if booting as root
-          ROOT_HOME="$(pwd)/${{ matrix.profile_dir }}/airootfs/root"
-          mkdir -p "$ROOT_HOME/.config" "$ROOT_HOME/.local"
-          cp -r "$SKEL/.config/"* "$ROOT_HOME/.config/" 2>/dev/null || true
-          cp -r "$SKEL/.local/"* "$ROOT_HOME/.local/" 2>/dev/null || true
-
           rm -rf temp-dotfiles
 
-      - name: Build ISO using mkarchiso
+      - name: Build x86_64 ISO
         run: |
-          mkarchiso -v -w work/ -o out/ ${{ matrix.profile_dir }}
+          mkarchiso -v -w work/ -o out/ ./src/x86_64
 
-      - name: Upload finished ISO artifact
+      - name: Upload finished x86_64 ISO artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Arch-Live-ISO-${{ matrix.arch }}
+          name: Arch-Live-ISO-x86_64
           path: out/*.iso
-          if-no-files-found: error
-          retention-days: 7
+
+  build-arm64:
+    name: Build ARM64 ISO (Emulated)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU for ARM64
+        uses: docker/setup-qemu-action@v3
+
+      - name: Build ARM64 ISO via Docker + QEMU
+        run: |
+          docker run --privileged --rm \
+            --platform linux/arm64 \
+            -v $(pwd):/workspace \
+            -w /workspace \
+            agners/archlinuxarm:latest \
+            bash -c "
+              pacman -Syu --noconfirm archiso git rsync grub squashfs-tools libisoburn && \
+              
+              SKEL=\"/workspace/src/arm64/airootfs/etc/skel\" && \
+              mkdir -p \"\$SKEL/.config\" && \
+              git clone --recursive https://github.com/end-4/dots-hyprland.git /tmp/dotfiles && \
+              if [ -d '/tmp/dotfiles/dots/.config' ]; then \
+                cp -r /tmp/dotfiles/dots/.config/* \"\$SKEL/.config/\"; \
+              fi && \
+              rm -rf /tmp/dotfiles && \
+
+              mkarchiso -v -w work/ -o out/ ./src/arm64
+            "
+
+      - name: Upload finished ARM64 ISO artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Arch-Live-ISO-arm64
+          path: out/*.iso
