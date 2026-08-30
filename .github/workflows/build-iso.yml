@@ -39,7 +39,7 @@ jobs:
       version: ${{ steps.vars.outputs.version }}
       image: ${{ steps.vars.outputs.image }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - id: vars
         env:
           INPUT_CHANNEL: ${{ inputs.channel }}
@@ -76,7 +76,7 @@ jobs:
     steps:
       - name: Install dependencies
         run: pacman -Syu --noconfirm archiso git openssh rsync
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Validate repository
         run: bash scripts/validate-repo.sh
       - name: Build ISO
@@ -84,7 +84,7 @@ jobs:
           RELEASE_CHANNEL: ${{ needs.prepare.outputs.channel }}
           RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
         run: scripts/build-iso.sh "${{ matrix.variant }}" "$GITHUB_WORKSPACE/out"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: iso-${{ matrix.variant }}
           path: out/*.iso
@@ -111,7 +111,7 @@ jobs:
     needs: [prepare, build]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: iso-*
           path: isos
