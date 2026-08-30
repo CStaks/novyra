@@ -26,7 +26,7 @@ jobs:
     steps:
       - name: Install dependencies
         run: pacman -Sy --noconfirm git openssh rsync pacman gnupg
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Import signing key
         env:
           NOVYRA_PACKAGE_SIGNING_KEY: ${{ secrets.NOVYRA_PACKAGE_SIGNING_KEY }}
