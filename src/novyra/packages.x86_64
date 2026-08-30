@@ -1,12 +1,19 @@
-base
-cloud-init
-hyperv
-linux
-mkinitcpio
-mkinitcpio-archiso
-open-vm-tools
-openssh
-pv
-qemu-guest-agent
-syslinux
-virtualbox-guest-utils-nox
+# Base Hyprland Stack
+hyprland
+kitty
+waybar
+wofi
+dunst
+polkit-kde-agent
+
+# Display / GPU Drivers
+mesa
+vulkan-radeon
+vulkan-intel
+
+# Audio & Utilities
+pipewire
+wireplumber
+qt5-wayland
+qt6-wayland
+xdg-desktop-portal-hyprland
