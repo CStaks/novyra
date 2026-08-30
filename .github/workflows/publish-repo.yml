@@ -1,0 +1,57 @@
+name: Publish Novyra pacman repository
+
+on:
+  push:
+    branches: [main]
+    paths: ["packages/**", "scripts/build-package-repo.sh", ".github/workflows/publish-repo.yml"]
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  contents: read
+
+env:
+  SOURCEFORGE_PROJECT: novyra
+  SOURCEFORGE_USER: ${{ secrets.SOURCEFORGE_USER }}
+  SOURCEFORGE_HOST: frs.sourceforge.net
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    steps:
+      - name: Install dependencies
+        run: pacman -Sy --noconfirm git openssh rsync pacman gnupg
+      - uses: actions/checkout@v4
+      - name: Import signing key
+        env:
+          NOVYRA_PACKAGE_SIGNING_KEY: ${{ secrets.NOVYRA_PACKAGE_SIGNING_KEY }}
+        run: |
+          test -n "$NOVYRA_PACKAGE_SIGNING_KEY"
+          printf '%s\n' "$NOVYRA_PACKAGE_SIGNING_KEY" | gpg --batch --import
+      - name: Build repository metadata
+        env:
+          GPG_KEY_ID: ${{ secrets.NOVYRA_PACKAGE_SIGNING_KEY_ID }}
+        run: scripts/build-package-repo.sh packages repo/x86_64
+      - name: Export public key
+        env:
+          GPG_KEY_ID: ${{ secrets.NOVYRA_PACKAGE_SIGNING_KEY_ID }}
+        run: gpg --armor --export "$GPG_KEY_ID" > repo/x86_64/novyra.gpg
+      - name: Configure SSH
+        env:
+          SOURCEFORGE_SSH_PRIVATE_KEY: ${{ secrets.SOURCEFORGE_SSH_PRIVATE_KEY }}
+        run: |
+          test -n "$SOURCEFORGE_USER" && test -n "$SOURCEFORGE_SSH_PRIVATE_KEY"
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$SOURCEFORGE_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$SOURCEFORGE_HOST" >> ~/.ssh/known_hosts
+      - name: Upload repository
+        run: |
+          remote="/home/frs/project/$SOURCEFORGE_PROJECT/repo/x86_64"
+          ssh "$SOURCEFORGE_USER@$SOURCEFORGE_HOST" "mkdir -p '$remote'"
+          rsync -av --checksum repo/x86_64/ "$SOURCEFORGE_USER@$SOURCEFORGE_HOST:$remote/"

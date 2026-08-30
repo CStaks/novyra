@@ -1,0 +1,7 @@
+root:x:0:
+greeter:x:1000:
+audio:x:997:greeter
+video:x:996:greeter
+input:x:995:greeter
+network:x:994:greeter
+wheel:x:998:greeter

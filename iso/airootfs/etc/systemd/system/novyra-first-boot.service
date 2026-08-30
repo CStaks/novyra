@@ -1,0 +1,15 @@
+[Unit]
+Description=Novyra first-boot application setup
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=!/var/lib/novyra/first-boot-complete
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/share/novyra/setup-apps.sh
+ExecStartPost=/usr/bin/mkdir -p /var/lib/novyra
+ExecStartPost=/usr/bin/touch /var/lib/novyra/first-boot-complete
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
