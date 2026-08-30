@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Installation · Novyra Wiki</title>
+<meta name="description" content="Build or obtain the Novyra ArchISO image, boot it, and install from the live environment.">
+<link rel="stylesheet" href="../wiki.css">
+<link rel="icon" href="../primary-dark-logo.ico" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="../primary-light-logo.ico" media="(prefers-color-scheme: light)">
+<script>
+  const theme = localStorage.getItem('novyra-theme');
+  if (theme === 'light' || (!theme && matchMedia('(prefers-color-scheme: light)').matches)) document.documentElement.classList.add('light');
+</script>
+</head>
+<body>
+<header class="wiki-topbar">
+  <div class="wiki-topbar-inner">
+    <a class="wiki-brand" href="index.html">Novyra<span style="color:var(--bg-color)"> · Wiki</span></a>
+    <div class="wiki-actions">
+      <a class="wiki-back" href="https://CStaks.github.io/novyra/">← Back to Novyra</a>
+      <button class="wiki-theme-toggle" type="button" aria-label="Switch to light theme">☼</button>
+    </div>
+  </div>
+</header>
+<div class="wiki-layout">
+  <nav class="wiki-nav" aria-label="Wiki pages">
+<h2>Getting started</h2>
+<ul>
+<li><a href="installation.html" class="active">Installation</a></li>
+<li><a href="getting-started.html">Getting started</a></li>
+</ul>
+  </nav>
+  <main class="wiki-content">
+<p class="wiki-description" style="color:var(--muted)">Build or obtain the Novyra ArchISO image, boot it, and install from the live environment.</p><h1>Installation</h1>
+<p>Novyra currently ships as an ArchISO profile. The repository contains the live image profile, but it does not yet include a graphical or automated disk installer. Treat this as a live environment and use the standard Arch installation workflow from the terminal.</p>
+<h2>Requirements</h2>
+<ul>
+<li>A 64-bit x86_64 machine or virtual machine</li>
+<li>At least 2 GiB RAM and 20 GiB of storage recommended</li>
+<li>A USB drive, if installing on physical hardware</li>
+<li>A backup of important data — installation can erase the target disk</li>
+</ul>
+<h2>Get the image</h2>
+<p>Download a published ISO from the <a href="https://github.com/CStaks/novyra">Novyra repository</a>. If no release image is available yet, build one from the repository instead.</p>
+<h2>Build the ISO from source</h2>
+<p>Builds are performed with <code>mkarchiso</code> inside an Arch Linux environment. The included GitHub Actions workflow uses a privileged <code>archlinux:latest</code> container.</p>
+<pre><code class="language-sh">pacman -Sy --noconfirm archlinux-keyring
+pacman-key --init
+pacman-key --populate archlinux
+pacman -Syu --noconfirm archiso libisoburn squashfs-tools grub
+mkdir -p work out
+mkarchiso -v -w work/ -o out/ ./src/novyra/
+</code></pre>
+<p>The resulting ISO is written to <code>out/</code>. The profile supports BIOS via Syslinux and UEFI via GRUB.</p>
+<h2>Write the ISO to a USB</h2>
+<p>Replace <code>/dev/sdX</code> with the whole USB device, not a partition. This erases the USB drive.</p>
+<pre><code class="language-sh">dd if=out/*.iso of=/dev/sdX bs=4M status=progress conv=fsync
+</code></pre>
+<p>On a virtual machine, attach the ISO directly instead of writing it to USB.</p>
+<h2>Boot the live environment</h2>
+<ol>
+<li>Boot the target machine from the Novyra USB or ISO.</li>
+<li>Choose the default boot entry.</li>
+<li>Confirm that networking works.</li>
+<li>Identify the target disk with <code>lsblk</code>.</li>
+</ol>
+<p>The current profile includes the base system, Linux kernel, OpenSSH, QEMU guest agent, VirtualBox guest utilities, Hyper-V support, and VMware tools. It does not currently define a desktop session or installer configuration in the repository.</p>
+<h2>Install to disk</h2>
+<p>Use the standard Arch Linux installation process from the live shell:</p>
+<ol>
+<li>Set the correct keyboard layout with <code>loadkeys</code> if needed.</li>
+<li>Verify network access and synchronize the clock.</li>
+<li>Partition and format the target disk.</li>
+<li>Mount the target filesystem under <code>/mnt</code>.</li>
+<li>Install the base system and kernel with <code>pacstrap</code>.</li>
+<li>Generate <code>/etc/fstab</code> with <code>genfstab</code>.</li>
+<li>Enter the new system with <code>arch-chroot</code>.</li>
+<li>Configure timezone, locale, hostname, users, networking, and a bootloader.</li>
+<li>Enable any required guest-agent or SSH services.</li>
+<li>Exit, unmount <code>/mnt</code>, reboot, and remove the installation media.</li>
+</ol>
+<p>Consult the <a href="https://wiki.archlinux.org/title/Installation_guide">Arch Linux Installation Guide</a> for the authoritative commands and hardware-specific details.</p>
+<h2>After installation</h2>
+<p>Update the installed system and configure your preferred desktop or window manager. Hyprland and CachyOS repository integration are planned product direction, but they are not present in the current ISO profile files yet.</p>
+  </main>
+</div>
+<footer class="wiki-footer">
+  <div class="wiki-footer-inner">
+    <span>Novyra OS documentation.</span>
+    <span><a href="https://CStaks.github.io/novyra/">Novyra OS</a></span>
+  </div>
+</footer>
+<script>
+  const root = document.documentElement;
+  const toggle = document.querySelector('.wiki-theme-toggle');
+  function updateTheme() {
+    const light = root.classList.contains('light');
+    toggle.textContent = light ? '☾' : '☼';
+    toggle.setAttribute('aria-label', light ? 'Switch to dark theme' : 'Switch to light theme');
+  }
+  toggle.addEventListener('click', () => {
+    root.classList.toggle('light');
+    localStorage.setItem('novyra-theme', root.classList.contains('light') ? 'light' : 'dark');
+    updateTheme();
+  });
+  updateTheme();
+</script>
+</body>
+</html>

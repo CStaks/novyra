@@ -1,0 +1,45 @@
+:root {
+  color-scheme: dark;
+  --bg-color: #1C1C1C;
+  --surface-color: #2A2A2A;
+  --text-color: #FFFFFF;
+  --muted-color: #A1A1AA;
+  --border-color: #3F3F46;
+}
+
+:root.light {
+  color-scheme: light;
+  --bg-color: #FFFFFF;
+  --surface-color: #F4F4F5;
+  --text-color: #1C1C1C;
+  --muted-color: #52525B;
+  --border-color: #E4E4E7;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg-color); color: var(--text-color); font: 15px/1.7 system-ui, sans-serif; }
+a { color: inherit; }
+.wiki-topbar { border-bottom: 1px solid var(--border-color); padding: 20px 24px; }
+.wiki-topbar-inner, .wiki-layout, .wiki-footer-inner { width: min(1040px, calc(100% - 32px)); margin: auto; }
+.wiki-topbar-inner, .wiki-footer-inner { display: flex; justify-content: space-between; gap: 20px; }
+.wiki-brand { font-weight: 700; text-decoration: none; }
+.wiki-back, .wiki-footer { color: var(--muted-color); }
+.wiki-actions { display: flex; align-items: center; gap: 18px; }
+.wiki-theme-toggle { border: 0; background: transparent; color: var(--muted-color); cursor: pointer; font-size: 18px; padding: 0; }
+.wiki-theme-toggle:hover { color: var(--text-color); }
+.wiki-layout { display: grid; grid-template-columns: 190px 1fr; gap: 64px; padding: 64px 0 96px; }
+.wiki-nav { border-right: 1px solid var(--border-color); }
+.wiki-nav h2 { color: var(--muted-color); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+.wiki-nav ul { list-style: none; margin: 16px 0; padding: 0; }
+.wiki-nav li { margin: 10px 0; }
+.wiki-nav a { color: var(--muted-color); text-decoration: none; }
+.wiki-nav a:hover, .wiki-nav a.active { color: var(--text-color); }
+.wiki-content { max-width: 680px; }
+.wiki-content h1 { margin: 0 0 28px; font-size: clamp(36px, 6vw, 60px); line-height: 1.05; letter-spacing: -.06em; }
+.wiki-content h2 { margin-top: 42px; font-size: 22px; }
+.wiki-content p { color: var(--muted-color); }
+.wiki-content code, .wiki-content pre { background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 6px; }
+.wiki-content code { padding: 2px 5px; }
+.wiki-content pre { padding: 16px; overflow: auto; color: var(--text-color); }
+.wiki-footer { border-top: 1px solid var(--border-color); padding: 20px 0 30px; font-size: 12px; }
+@media (max-width: 680px) { .wiki-layout { display: block; padding-top: 40px; } .wiki-nav { border: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 44px; } .wiki-nav ul { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 0; } .wiki-nav li { margin: 0; } }
