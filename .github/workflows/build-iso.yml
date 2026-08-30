@@ -2,7 +2,7 @@ name: Build Arch Linux ISO
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, iso-building-tests]
   workflow_dispatch: # Allows manual trigger from the GitHub Actions tab
 
 jobs:
