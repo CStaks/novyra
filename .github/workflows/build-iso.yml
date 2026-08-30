@@ -56,63 +56,63 @@ jobs:
           name: Arch-Live-ISO-x86_64
           path: out/*.iso
 
-  build-arm64:
-    name: Build ARM64 ISO (Emulated)
-    runs-on: ubuntu-latest
+  # build-arm64:
+  #   name: Build ARM64 ISO (Emulated)
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository code
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout repository code
+  #       uses: actions/checkout@v4
 
-      # 1. Register QEMU static binaries with binfmt_misc
-      - name: Register QEMU static emulators
-        run: |
-          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+  #     # 1. Register QEMU static binaries with binfmt_misc
+  #     - name: Register QEMU static emulators
+  #       run: |
+  #         docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
-      # 2. Force Docker to pull the linux/arm64 manifest explicitly
-      - name: Pre-pull ARM64 Docker Image
-        run: |
-          docker pull --platform linux/arm64 agners/archlinuxarm:latest
+  #     # 2. Force Docker to pull the linux/arm64 manifest explicitly
+  #     - name: Pre-pull ARM64 Docker Image
+  #       run: |
+  #         docker pull --platform linux/arm64 agners/archlinuxarm:latest
 
-      # 3. Execute the ARM64 container under emulation
-      - name: Build ARM64 ISO via Arch Linux ARM Docker
-        run: |
-          docker run --privileged --rm \
-            --platform linux/arm64 \
-            -v $(pwd):/workspace \
-            -w /workspace \
-            agners/archlinuxarm:latest \
-            bash -c "
-              # 1. Install gawk and base build essentials
-              pacman -Sy --noconfirm gawk base-devel archlinuxarm-keyring || true && \
-              pacman-key --init && \
-              pacman-key --populate archlinuxarm && \
+  #     # 3. Execute the ARM64 container under emulation
+  #     - name: Build ARM64 ISO via Arch Linux ARM Docker
+  #       run: |
+  #         docker run --privileged --rm \
+  #           --platform linux/arm64 \
+  #           -v $(pwd):/workspace \
+  #           -w /workspace \
+  #           agners/archlinuxarm:latest \
+  #           bash -c "
+  #             # 1. Install gawk and base build essentials
+  #             pacman -Sy --noconfirm gawk base-devel archlinuxarm-keyring || true && \
+  #             pacman-key --init && \
+  #             pacman-key --populate archlinuxarm && \
               
-              # 2. Install dependencies including python-docutils for rst2man
-              pacman -Syu --noconfirm git rsync grub squashfs-tools libisoburn make python-docutils && \
+  #             # 2. Install dependencies including python-docutils for rst2man
+  #             pacman -Syu --noconfirm git rsync grub squashfs-tools libisoburn make python-docutils && \
 
-              # 3. Check for archiso; if missing, build and install from git
-              if ! pacman -S --noconfirm archiso; then
-                git clone https://gitlab.archlinux.org/archlinux/archiso.git /tmp/archiso && \
-                make -C /tmp/archiso install && \
-                rm -rf /tmp/archiso
-              fi && \
+  #             # 3. Check for archiso; if missing, build and install from git
+  #             if ! pacman -S --noconfirm archiso; then
+  #               git clone https://gitlab.archlinux.org/archlinux/archiso.git /tmp/archiso && \
+  #               make -C /tmp/archiso install && \
+  #               rm -rf /tmp/archiso
+  #             fi && \
               
-              # 4. Deploy dotfiles into skel
-              SKEL=\"/workspace/src/novyra-arm64/airootfs/etc/skel\" && \
-              mkdir -p \"\$SKEL/.config\" && \
-              git clone --recursive https://github.com/end-4/dots-hyprland.git /tmp/dotfiles && \
-              if [ -d '/tmp/dotfiles/dots/.config' ]; then \
-                cp -r /tmp/dotfiles/dots/.config/* \"\$SKEL/.config/\"; \
-              fi && \
-              rm -rf /tmp/dotfiles && \
+  #             # 4. Deploy dotfiles into skel
+  #             SKEL=\"/workspace/src/novyra-arm64/airootfs/etc/skel\" && \
+  #             mkdir -p \"\$SKEL/.config\" && \
+  #             git clone --recursive https://github.com/end-4/dots-hyprland.git /tmp/dotfiles && \
+  #             if [ -d '/tmp/dotfiles/dots/.config' ]; then \
+  #               cp -r /tmp/dotfiles/dots/.config/* \"\$SKEL/.config/\"; \
+  #             fi && \
+  #             rm -rf /tmp/dotfiles && \
 
-              # 5. Build ISO
-              mkarchiso -v -w work/ -o out/ ./src/novyra-arm64
-            "
+  #             # 5. Build ISO
+  #             mkarchiso -v -w work/ -o out/ ./src/novyra-arm64
+  #           "
 
-      - name: Upload finished ARM64 ISO artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Arch-Live-ISO-arm64
-          path: out/*.iso
+  #     - name: Upload finished ARM64 ISO artifact
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: Arch-Live-ISO-arm64
+  #         path: out/*.iso
