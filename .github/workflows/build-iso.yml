@@ -23,9 +23,9 @@ jobs:
 
       - name: Inject x86 bootloader templates
         run: |
-          mkdir -p ./srcnovyra-x86_64/syslinux ./srcnovyra-x86_64/grub
-          cp -r /usr/share/archiso/configs/releng/syslinux/* ./srcnovyra-x86_64/syslinux/
-          cp -r /usr/share/archiso/configs/releng/grub/* ./srcnovyra-x86_64/grub/
+          mkdir -p ./src/novyra-x86_64/syslinux ./src/novyra-x86_64/grub
+          cp -r /usr/share/archiso/configs/releng/syslinux/* ./src/novyra-x86_64/syslinux/
+          cp -r /usr/share/archiso/configs/releng/grub/* ./src/novyra-x86_64/grub/
 
       - name: Checkout dotfiles repository
         uses: actions/checkout@v4
@@ -36,7 +36,7 @@ jobs:
 
       - name: Deploy Dotfiles to /etc/skel
         run: |
-          SKEL="$(pwd)/srcnovyra-x86_64/airootfs/etc/skel"
+          SKEL="$(pwd)/src/novyra-x86_64/airootfs/etc/skel"
           mkdir -p "$SKEL/.config" "$SKEL/.local"
           if [ -d "temp-dotfiles/dots/.config" ]; then
             cp -r temp-dotfiles/dots/.config/* "$SKEL/.config/"
@@ -48,7 +48,7 @@ jobs:
 
       - name: Build x86_64 ISO
         run: |
-          mkarchiso -v -w work/ -o out/ ./srcnovyra-x86_64
+          mkarchiso -v -w work/ -o out/ ./src/novyra-x86_64
 
       - name: Upload finished x86_64 ISO artifact
         uses: actions/upload-artifact@v4
@@ -77,7 +77,7 @@ jobs:
             bash -c "
               pacman -Syu --noconfirm archiso git rsync grub squashfs-tools libisoburn && \
               
-              SKEL=\"/workspace/srcnovyra-arm64/airootfs/etc/skel\" && \
+              SKEL=\"/workspace/src/novyra-arm64/airootfs/etc/skel\" && \
               mkdir -p \"\$SKEL/.config\" && \
               git clone --recursive https://github.com/end-4/dots-hyprland.git /tmp/dotfiles && \
               if [ -d '/tmp/dotfiles/dots/.config' ]; then \
@@ -85,7 +85,7 @@ jobs:
               fi && \
               rm -rf /tmp/dotfiles && \
 
-              mkarchiso -v -w work/ -o out/ ./srcnovyra-arm64
+              mkarchiso -v -w work/ -o out/ ./src/novyra-arm64
             "
 
       - name: Upload finished ARM64 ISO artifact
