@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# novyra-setup-apps - install the novyra desktop shell (ambxst) and its dependencies.
+#
+# Runs the official installer, which installs ambxst and everything it needs.
+# The installer's only interactive question is "Continue? [y/N]", which it reads
+# from the terminal (/dev/tty) rather than stdin, so we answer it through a
+# pseudo-terminal via util-linux `script`.
+#
+# Per the ambxst documentation, a functioning Hyprland installation is the only
+# pre-requisite (preinstalled on the ISO), and `ambxst install hyprland` wires
+# the shell into Hyprland's config so it autostarts on login.
+set -euo pipefail
+
+BLUE='\033[0;34m'; GREEN='\033[0;32m'; RED='\033[0;31m'; NC='\033[0m'
+info() { echo -e "${BLUE}::${NC} $*"; }
+ok()   { echo -e "${GREEN}::${NC} $*"; }
+err()  { echo -e "${RED}::${NC} $*" >&2; }
+
+if [ "$(id -u)" -eq 0 ]; then
+  # The ambxst installer refuses to run as root. If we were started with
+  # sudo, drop back to the invoking user and re-run from there.
+  if [ -n "${SUDO_USER:-}" ] && [ "$SUDO_USER" != "root" ]; then
+    info "Dropping privileges to '$SUDO_USER' (the installer must not run as root)."
+    exec sudo -u "$SUDO_USER" -- "$(readlink -f "$0")" "$@"
+  fi
+  err "novyra-setup-apps must not run as root."
+  err "The ambxst installer refuses root; log in as a regular user and run it there."
+  exit 1
+fi
+
+if command -v ambxst >/dev/null 2>&1; then
+  info "ambxst is already installed; re-running the installer to update it."
+else
+  info "novyra desktop setup"
+  info "This installs the ambxst desktop shell and all of its dependencies."
+fi
+
+echo
+
+if command -v script >/dev/null 2>&1; then
+  # Feed "y" through a pty so the installer's "Continue? [y/N]" (read from
+  # /dev/tty) is answered automatically.
+  printf 'y\n' | script -qec "curl -fsSL get.axeni.de/ambxst | sh" /dev/null
+else
+  err "util-linux 'script' not found; cannot auto-answer the installer prompt."
+  err "Run the installer manually and answer 'y' when asked:"
+  err "  curl -fsSL get.axeni.de/ambxst | sh"
+  exit 1
+fi
+
+# Wire ambxst into Hyprland's config so the shell autostarts on login.
+# (Documentation: https://github.com/Axenide/Ambxst - step 2 of installation.)
+if command -v ambxst >/dev/null 2>&1; then
+  if command -v hyprland >/dev/null 2>&1 || [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+    info "Configuring ambxst for Hyprland (ambxst install hyprland)..."
+    ambxst install hyprland || err "'ambxst install hyprland' failed; run it manually before starting the shell."
+  else
+    info "Hyprland not found; skipping 'ambxst install hyprland'."
+    info "Install Hyprland and run 'ambxst install hyprland' to enable autostart."
+  fi
+fi
+
+echo
+ok "Setup finished."
+ok "Start the desktop shell with: ambxst"

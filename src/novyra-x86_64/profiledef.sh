@@ -3,8 +3,8 @@
 
 iso_name="novyra-linux"
 iso_label="NOVYRA_$(date +%Y%m)"
-iso_publisher="Novyra <https://github.com/cstacks/novyra>"
-iso_application="Novyra Linux Live/Rescue CD"
+iso_publisher="novyra <https://github.com/cstacks/novyra>"
+iso_application="novyra linux live"
 iso_version="$(date +%Y.%m.%d)"
 install_dir="arch"
 buildmodes=('iso')

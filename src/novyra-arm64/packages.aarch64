@@ -30,7 +30,11 @@ p7zip
 unzip
 
 #####################################################################
-# HYPRLAND & WAYLAND CORE STACK
+# HYPRLAND COMPOSITOR
+#
+# ambxst (installed at runtime via `novyra-setup-apps`, which runs
+# `curl -fsSL get.axeni.de/ambxst | sh`) requires a functioning
+# Hyprland installation.
 #####################################################################
 hyprland
 xdg-desktop-portal
@@ -41,20 +45,10 @@ qt6-wayland
 xorg-xwayland
 
 #####################################################################
-# DOTFILES DEPENDENCIES (Official Repo Equivalents)
+# SHELL & TERMINAL
 #####################################################################
 kitty
-fish
 zsh
-starship
-waybar
-wofi
-rofi
-dunst
-python
-python-pip
-npm
-nodejs
 
 #####################################################################
 # DISPLAY DRIVERS & GRAPHICS

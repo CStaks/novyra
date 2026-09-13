@@ -1,0 +1,3 @@
+# Passwordless sudo for the live environment user.
+# This file exists only on the live ISO, not on an installed system.
+arch ALL=(ALL:ALL) NOPASSWD: ALL
