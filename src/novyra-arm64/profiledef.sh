@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2034
 
-iso_name="archlinux-arm64-hyprland"
-iso_label="ARCH_ARM_$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y%m)"
-iso_publisher="Arch Linux ARM <https://archlinuxarm.org>"
-iso_application="Arch Linux ARM Hyprland Live"
+iso_name="novyra-linux-arm64"
+iso_label="NOVYRA_ARM_$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y%m)"
+iso_publisher="novyra <https://github.com/cstacks/novyra>"
+iso_application="novyra linux arm64 live"
 iso_version="$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y.%m.%d)"
 install_dir="arch"
 buildmodes=('iso')
